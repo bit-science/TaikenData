@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p5.js Game Dev Workshop Instructor Manual</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+/* 1. THE SETUP */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #1e1e1e;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px 0;
+  place-items: center;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.slide-container {
+  align-items: flex-start;
+  background-color: #252526; /* VS Code-like dark gray */
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  height: 720px;
+  justify-content: center;
+  overflow: hidden;
+  padding: 40px 50px;
+  position: relative;
+  width: 1280px;
+  color: #d4d4d4;
+}
+
+/* 1.1 BACKGROUND STYLING (Subtle Grid) */
+.slide-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.slide-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 2. TYPOGRAPHY */
+
+h1, h2, h3 {
+  font-family: 'Noto Sans JP', sans-serif;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.slide-container h1 {
+  font-size: 56px;
+  color: #569cd6; /* Blue keyword color */
+  font-weight: 700;
+}
+
+.slide-container h1 span {
+  color: #ce9178; /* String color */
+}
+
+.slide-container h2.slide-title {
+  font-size: 42px;
+  color: #4ec9b0; /* Class name color */
+  border-bottom: 1px solid #3e3e42;
+  padding-bottom: 15px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.slide-container p, 
+.slide-container li {
+  font-size: 20px;
+  line-height: 1.6;
+  color: #cccccc;
+}
+
+.slide-container .subtitle {
+  font-size: 24px;
+  color: #9cdcfe; /* Variable color */
+  margin-top: 10px;
+}
+
+/* Code Snippets */
+code, .code-block {
+  font-family: 'JetBrains Mono', monospace;
+  background-color: #1e1e1e;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #dcdcaa; /* Function color */
+  border: 1px solid #3e3e42;
+}
+
+.code-block {
+  display: block;
+  padding: 20px;
+  white-space: pre;
+  overflow-x: auto;
+  font-size: 18px;
+  width: 100%;
+}
+
+/* 3. LAYOUT DEFINITIONS */
+
+.title-layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.content-area {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  width: 100%;
+  justify-content: center;
+}
+
+.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  height: 100%;
+  align-items: center;
+}
+
+.image-wrapper {
+  width: 100%;
+  height: 400px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #3e3e42;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Changed to contain for screenshots */
+}
+
+/* Timeline */
+.timeline-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  padding: 40px 0;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #3e3e42;
+  z-index: 0;
+}
+
+.timeline-item {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  background-color: #252526;
+  padding: 0 10px;
+}
+
+.timeline-dot {
+  width: 24px;
+  height: 24px;
+  background-color: #569cd6;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  border: 4px solid #252526;
+}
+
+.timeline-item h3 {
+  font-size: 20px;
+  color: #dcdcaa;
+  margin-bottom: 5px;
+}
+
+.timeline-item p {
+  font-size: 16px;
+  color: #858585;
+}
+
+/* Tile Layout */
+.tiled-content {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  width: 100%;
+}
+
+.tile {
+  background-color: #333333;
+  padding: 25px;
+  border-radius: 8px;
+  border-left: 5px solid #569cd6;
+}
+
+.tile h3 {
+  color: #569cd6;
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+/* Lists with Icons */
+.icon-list {
+  list-style: none;
+  padding: 0;
+}
+
+.icon-list li {
+  margin-bottom: 20px;
+  padding-left: 35px;
+  position: relative;
+}
+
+.icon-list li i {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  color: #4ec9b0;
+}
+
+/* Helper Classes */
+.text-highlight { color: #ce9178; }
+.text-comment { color: #6a9955; }
+.text-function { color: #dcdcaa; }
+
+/* -----------------------------------------------------------------
+   AI ASSISTANT STYLES
+   ----------------------------------------------------------------- */
+.ai-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 9999;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.ai-fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+}
+
+.ai-chat-window {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 380px;
+  height: 500px;
+  background-color: #252526;
+  border: 1px solid #3e3e42;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.ai-chat-window.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+.chat-header {
+  background-color: #333333;
+  padding: 15px;
+  border-bottom: 1px solid #3e3e42;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-header h3 {
+  font-size: 16px;
+  color: #fff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-messages {
+  flex-grow: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 85%;
+  word-wrap: break-word;
+}
+
+.message.user {
+  background-color: #3b82f6;
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+
+.message.ai {
+  background-color: #3e3e42;
+  color: #d4d4d4;
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+.chat-input-area {
+  padding: 15px;
+  background-color: #333333;
+  border-top: 1px solid #3e3e42;
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input {
+  flex-grow: 1;
+  background-color: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #d4d4d4;
+  font-family: inherit;
+  resize: none;
+  height: 40px;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: #569cd6;
+}
+
+.chat-send-btn {
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.chat-send-btn:hover {
+  background-color: #4f46e5;
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px;
+  align-self: flex-start;
+  background-color: #3e3e42;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  display: none; /* Hidden by default */
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #888;
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* 4. PRINT STYLES - THIS FIXES THE PDF ISSUE */
+@media print {
+    @page {
+        size: landscape;
+        margin: 0;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #1e1e1e !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        display: block;
+    }
+    .slide-container {
+        break-after: page;
+        page-break-after: always;
+        margin: 0;
+        width: 100vw; /* Use Viewport Width */
+        height: 100vh; /* Use Viewport Height to fill page */
+        border-radius: 0;
+        box-shadow: none;
+        overflow: hidden; /* Prevent spillover */
+        display: flex; /* Keep flex layout for centering */
+    }
+    /* Hide non-printable elements */
+    .ai-fab, .ai-chat-window, .chat-send-btn {
+        display: none !important;
+    }
+}
+    </style>
+</head>
+<body>
+
+<!-- Slide 3: Step 1 Import -->
+<div class="slide-container" id="slide3">
+    <h2 class="slide-title">Step 1: ソースコードのインポート</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div style="font-size: 18px;">
+
+                <h3 style="color:#dcdcaa; font-size: 20px; margin-bottom: 8px;">自分の環境へプログラムをコピーする</h3>
+                
+                <div>
+                    <ol style="margin: 0; padding-left: 25px; color: #cccccc; font-size: 16px;">
+                        <li style="margin-bottom: 4px;"><a href="https://editor.p5js.org/" target="_blank" style="color: #569cd6;">https://editor.p5js.org/</a> このリンクを右クリックし、新しいタブで開きます</li>
+                        <li style="margin-bottom: 4px;">元々あるコードを消して、ダウンロードしたソースを貼り付け(Ctrl+V)。</li>
+                        <li>再生ボタン(<i class="fa-solid fa-play" style="font-size: 12px;"></i>)を押して動作確認します。</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="image-wrapper">
+                <img src="ss01.jpg" alt="p5.js Web Editor Interface">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: Step 2 Playtest -->
+<div class="slide-container" id="slide4">
+    <h2 class="slide-title">Step 2: 操作確認と現状把握</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <!-- Left: Basic Info & Controls -->
+            <div style="font-size: 18px;">
+                <h3 style="color:#dcdcaa; margin-bottom:10px;">基本仕様</h3>
+                <ul class="icon-list">
+                    <li><i class="fa-solid fa-user"></i> <strong>キャラ・ボイス</strong><br>「ユニティちゃん」を使用しています。</li>
+                    <li><i class="fa-solid fa-volume-high"></i> <strong>音量切り替え</strong><br>タイトル画面のスピーカーアイコンでON/OFF可能。</li>
+                </ul>
+
+                <h3 style="color:#dcdcaa; margin-bottom:10px; margin-top:20px;">操作方法</h3>
+                <div class="code-block" style="font-size: 16px; padding:10px;">
+[Mouse X] : 移動
+[Click]   : ジャンプ
+                </div>
+            </div>
+
+            <!-- Right: Constants & Customization -->
+            <div style="font-size: 18px;">
+                <h3 style="color:#ce9178; margin-bottom:10px;">コード先頭の定数</h3>
+                <p style="font-size:16px; margin-bottom:5px;">定数を変更することでプレイヤーの動作を調整できます</p>
+                <div class="code-block" style="font-size: 14px; padding: 10px; line-height: 1.4;">
+const playerStartX = 100;   // スタート位置X
+const playerStartY = 384;   // スタート位置Y
+const playerMoveSpeed = 3;  // 移動速度
+const playerJumpPower = 13; // ジャンプ力
+const playerGravity = 0.7;  // 重力
+const soundDefault = 1;     // 音 (0:OFF, 1:ON)
+                </div>
+                <div style="margin-top:10px; border:1px solid #3e3e42; padding:10px; border-radius:4px; background:#333;">
+                    <p style="font-size:16px; color:#9cdcfe;">
+                        <i class="fa-solid fa-lightbulb"></i> <strong>講師メモ</strong><br>
+                        起動のたびに音を消すのが面倒な場合は、soundDefaultを0に変更してください
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 5: Concept Arrays -->
+<div class="slide-container" id="slide5">
+    <h2 class="slide-title">Concept: マップチップと配列</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <h3>ゲームの世界は「マス目」でできている</h3>
+                <p>このゲームのステージは、小さな正方形の画像（<strong>マップチップ</strong>）をタイル状に敷き詰めて作られています。</p>
+                
+                <div style="margin-top: 30px; background: #333; padding: 20px; border-radius: 8px;">
+                    <h4 style="color: #4ec9b0; margin-bottom: 15px;"><i class="fa-solid fa-list-ol"></i> コンピュータの視点</h4>
+                    <p style="font-size: 18px; margin-bottom: 10px;">コンピュータは「絵」ではなく「<strong>数字の並び</strong>」として世界を見ています。</p>
+                    <ul class="icon-list" style="margin-top: 10px;">
+                        <li><i class="fa-solid fa-arrow-right" style="color:#569cd6;"></i> 0 = 空 (何も描かない)</li>
+                        <li><i class="fa-solid fa-arrow-right" style="color:#569cd6;"></i> 1 = 地面 (画像を表示)</li>
+                    </ul>
+                    <p style="font-size: 16px; color: #858585; margin-top: 10px;">この「数字の表」のことを<strong>2次元配列</strong>と呼びます。</p>
+                </div>
+            </div>
+            <div class="image-wrapper">
+                <img src="ss02.jpg" alt="Game Level Design Grid Concept">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 6: Step 3 Set Goal -->
+<div class="slide-container" id="slide6">
+    <h2 class="slide-title">Step 3: ゴールの設置</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div style="flex: 0 0 40%;">
+                <h3>ゴールを表示させる</h3>
+                <p><code>objectData</code>配列の中の任意の場所（例：右端）を<code>0</code>から<code>9</code>に書き換えます。</p>
+                <br>
+                <p>※数値の区切りである「,」（カンマ）を消してしまうとエラーになって動かなくなってしまうので注意することを伝えます</p>
+                <br>
+                <p><i class="fa-solid fa-check-circle" style="color: #4ec9b0;"></i> <strong>確認ポイント</strong></p>
+                <p style="font-size: 18px;">再生してゴール（揺れている旗）が表示されるか。<br>触れると「GOAL!」表示が出てクリア演出後にタイトルへ戻る処理が実行されるか。</p>
+            </div>
+            <div style="flex: 1;">
+                 <div class="code-block">
+let objectData = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 9], // 9 = Goal
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ...
+];
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 7: Step 4 Terrain -->
+<div class="slide-container" id="slide7">
+    <h2 class="slide-title">Step 4: 足場を作ろう（ステージ制作）</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <h3>空中に道を作る</h3>
+                <p style="margin-bottom: 15px;"><code>mapData</code>配列を編集し、ゴールまでの道を作ります。</p>
+                
+                <h4 style="color:#dcdcaa; font-size: 18px; margin-bottom: 10px;">値の対応リスト:</h4>
+                <ul class="icon-list" style="font-size: 18px;">
+                    <li><i class="fa-regular fa-square"></i> <code>0</code> : 空気（通れる）</li>
+                    <li><i class="fa-solid fa-square"></i> <code>1</code> : 足場 (中間)</li>
+                    <li><i class="fa-solid fa-square-caret-left"></i> <code>2</code> : 足場 (左端)</li>
+                    <li><i class="fa-solid fa-square-caret-right"></i> <code>3</code> : 足場 (右端)</li>
+                    <li><i class="fa-solid fa-layer-group"></i> <code>4</code> : 地表</li>
+                    <li><i class="fa-solid fa-grip"></i> <code>5</code> : 地中</li>
+                </ul>
+                <p style="margin-bottom: 15px;">※マップに穴をあけて落下させると初期座標に復帰します</p>
+            </div>
+            <div>
+                 <div class="code-block">
+let mapData = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 2, 1, 3, 0, 0, 2, 3, 0], // 足場追加
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [4, 4, 4, 4, 4, 4, 4, 4, 4, 4], // 地表
+  [5, 5, 5, 5, 5, 5, 5, 5, 5, 5]  // 地中
+];
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 8: Step 5 Decoration -->
+<div class="slide-container" id="slide8">
+    <h2 class="slide-title">Step 5: ステージの装飾</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <h3><i class="fa-solid fa-seedling"></i> 花を咲かせよう (1〜5)</h3>
+                <p><code>objectData</code>に1〜5の数字を入れると、アニメーションする様々な種類の花が配置されます。</p>
+            </div>
+            <div class="tile">
+                <h3><i class="fa-solid fa-triangle-exclamation" style="color:#ce9178;"></i> 配置のコツ</h3>
+                <p>花の座標は、<code>mapData</code>の地面ブロックと同じ場所になるようにしましょう。</p>
+            </div>
+            <div class="tile">
+                <h3><i class="fa-solid fa-paintbrush"></i> きれいなマップ作り</h3>
+                <p>浮いている花を確認したら修正し、「自然に見える配置」を意識して、美しいステージを完成させましょう。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 9: Step 6 Extra Challenge -->
+<div class="slide-container" id="slide9">
+    <h2 class="slide-title">Step 6: Extra - バナナのロジック</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <h3>収集アイテムの実装</h3>
+                <p><code>objectData</code>に<code>6</code>を設定するとプレイヤーが取得できるバナナが表示されます。</p>
+                <br>
+                <h3>条件分岐の体験</h3>
+                <p>「バナナを3つ集めないとゴールできない」というルールをプログラムで追加します。</p>
+            </div>
+            <div class="image-wrapper">
+                <img src="ss03.jpg" alt="Pixel Art Banana Item">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 10: Logic Code -->
+<div class="slide-container" id="slide10">
+    <h2 class="slide-title">Code: ゴール判定の修正</h2>
+    <div class="content-area">
+        <p><code>GoalCheck</code>関数の<strong style="color: #ce9178;">一番上</strong>に、以下のコードを追加してみてください。</p>
+
+        <div class="code-block" style="font-size: 18px;">
+function GoalCheck() {
+  
+  <span style="color: #4ec9b0;">// ▼ ここを追加 ▼</span>
+  <span style="color: #6a9955;">// バナナが3個より少ないなら、処理を終了(return 0)</span>
+  if (banana < 3) {
+    return 0;
+  }
+  <span style="color: #4ec9b0;">// ▲ ここまで ▲</span>
+
+  <span style="color: #858585;">// ... (以下は もともとあるコード なので触らない) ...</span>
+  for (let y = 0; y < objectData.length; y++) {
+     // ...
+  }
+}
+        </div>
+        <p class="text-comment" style="margin-top: 20px;">// 「return」を使って、条件を満たしていない場合に処理を中断（門前払い）させます。</p>
+    </div>
+</div>
+
+<!-- Slide 11: Summary & FAQ -->
+<div class="slide-container" id="slide11">
+    <h2 class="slide-title">まとめ & 想定Q&A</h2>
+    <div class="content-area">
+        <div class="two-column" style="align-items: flex-start;">
+            <!-- Left: Summary -->
+            <div>
+                <h3 style="color:#dcdcaa; margin-bottom: 20px;">本日のポイント</h3>
+                <ul class="icon-list" style="font-size: 22px;">
+                    <li><i class="fa-solid fa-code"></i> <strong>2次元配列</strong><br><span style="font-size:18px">ゲームの世界地図を作る仕組み</span></li>
+                    <li><i class="fa-solid fa-gamepad"></i> <strong>レベルデザイン</strong><br><span style="font-size:18px">プレイヤーを楽しませる工夫</span></li>
+                    <li><i class="fa-solid fa-microchip"></i> <strong>条件分岐</strong><br><span style="font-size:18px">ルールの作成（もし〜なら）</span></li>
+                </ul>
+                <div style="margin-top: 30px; padding: 15px; border: 1px dashed #569cd6; border-radius: 8px;">
+                    <p style="text-align: center; color: #569cd6; font-size: 18px;">「自分でルールを変えられる」ことの楽しさが大事！</p>
+                </div>
+            </div>
+
+            <!-- Right: FAQ -->
+            <div style="background-color: #333; padding: 20px; border-radius: 8px; font-size: 16px;">
+                <h3 style="color:#ce9178; margin-bottom: 15px; font-size: 20px;"><i class="fa-solid fa-clipboard-question"></i> よくある質問 (FAQ)</h3>
+                
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #4ec9b0;">Q. プログラムが動かなくなった</strong>
+                    <p style="margin: 2px 0 0 10px; color: #ccc;">A. バグをみつけている時間がないため、最初のコード貼り付けからやり直してください</p>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #4ec9b0;">Q. 〇〇なように改造したい！</strong>
+                    <p style="margin: 2px 0 0 10px; color: #ccc;">A. 自由ですが、具体的な方法は実際の授業でやります。</p>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #4ec9b0;">Q. この言語は何ですか？</strong>
+                    <p style="margin: 2px 0 0 10px; color: #ccc;">A. JavaScriptです。（JAVAとは別言語なので略しません）</p>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <strong style="color: #4ec9b0;">Q. let / const とは？</strong>
+                    <p style="margin: 2px 0 0 10px; color: #ccc;">A. letは変数、constは定数になります。</p>
+                </div>
+
+                <div>
+                    <strong style="color: #4ec9b0;">Q. 作ったゲームを保存したい</strong>
+                    <p style="margin: 2px 0 0 10px; color: #ccc;">A. p5.jsのアカウントを作ると保存できるようになります。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
