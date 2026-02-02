@@ -480,14 +480,15 @@ code, .code-block {
                 
                 <div>
                     <ol style="margin: 0; padding-left: 25px; color: #cccccc; font-size: 16px;">
-                        <li style="margin-bottom: 4px;"><a href="https://editor.p5js.org/" target="_blank" style="color: #569cd6;">https://editor.p5js.org/</a> このリンクを右クリックし、新しいタブで開きます</li>
-                        <li style="margin-bottom: 4px;">元々あるコードを消して、ダウンロードしたソースを貼り付け(Ctrl+V)。</li>
+                        <li style="margin-bottom: 4px;"><a href="https://bit-science.github.io/TaikenData/taiken_action.txt" target="_blank" style="color: #569cd6;">ソースファイルをダウンロード</a> このリンクを右クリックし「名前を付けてリンク先を保存」します</li>
+                        <li style="margin-bottom: 4px;"><a href="https://editor.p5js.org/" target="_blank" style="color: #569cd6;">https://editor.p5js.org/</a> このリンクを右クリックし「新しいタブで開く」をクリックします</li>
+                        <li style="margin-bottom: 4px;">元々あるコードを消して、ダウンロードしたソースファイルをドラッグアンドドロップします。</li>
                         <li>再生ボタン(<i class="fa-solid fa-play" style="font-size: 12px;"></i>)を押して動作確認します。</li>
                     </ol>
                 </div>
             </div>
             <div class="image-wrapper">
-                <img src="https://bit-science.github.io/TaikenData/ss01.jpg" alt="p5.js Web Editor Interface">
+                <img src="https://bit-science.github.io/TaikenData/ss04.jpg" alt="p5.js Web Editor Interface">
             </div>
         </div>
     </div>
@@ -571,7 +572,7 @@ const soundDefault = 1;     // 音 (0:OFF, 1:ON)
                 <h3>ゴールを表示させる</h3>
                 <p><code>objectData</code>配列の中の任意の場所（例：右端）を<code>0</code>から<code>9</code>に書き換えます。</p>
                 <br>
-                <p>※数値の区切りである「,」（カンマ）を消してしまうとエラーになって動かなくなってしまうので注意することを伝えます</p>
+                <p>※数値の区切りである「,」（カンマ）を消してしまうとエラーになって動かなくなってしまうので注意してください。</p>
                 <br>
                 <p><i class="fa-solid fa-check-circle" style="color: #4ec9b0;"></i> <strong>確認ポイント</strong></p>
                 <p style="font-size: 18px;">再生してゴール（揺れている旗）が表示されるか。<br>触れると「GOAL!」表示が出てクリア演出後にタイトルへ戻る処理が実行されるか。</p>
@@ -692,51 +693,16 @@ function GoalCheck() {
 
 <!-- Slide 11: Summary & FAQ -->
 <div class="slide-container" id="slide11">
-    <h2 class="slide-title">まとめ & 想定Q&A</h2>
+    <h2 class="slide-title">まとめ</h2>
     <div class="content-area">
-        <div class="two-column" style="align-items: flex-start;">
-            <!-- Left: Summary -->
-            <div>
-                <h3 style="color:#dcdcaa; margin-bottom: 20px;">本日のポイント</h3>
-                <ul class="icon-list" style="font-size: 22px;">
-                    <li><i class="fa-solid fa-code"></i> <strong>2次元配列</strong><br><span style="font-size:18px">ゲームの世界地図を作る仕組み</span></li>
-                    <li><i class="fa-solid fa-gamepad"></i> <strong>レベルデザイン</strong><br><span style="font-size:18px">プレイヤーを楽しませる工夫</span></li>
-                    <li><i class="fa-solid fa-microchip"></i> <strong>条件分岐</strong><br><span style="font-size:18px">ルールの作成（もし〜なら）</span></li>
-                </ul>
-                <div style="margin-top: 30px; padding: 15px; border: 1px dashed #569cd6; border-radius: 8px;">
-                    <p style="text-align: center; color: #569cd6; font-size: 18px;">「自分でルールを変えられる」ことの楽しさが大事！</p>
-                </div>
-            </div>
-
-            <!-- Right: FAQ -->
-            <div style="background-color: #333; padding: 20px; border-radius: 8px; font-size: 16px;">
-                <h3 style="color:#ce9178; margin-bottom: 15px; font-size: 20px;"><i class="fa-solid fa-clipboard-question"></i> よくある質問 (FAQ)</h3>
-                
-                <div style="margin-bottom: 12px;">
-                    <strong style="color: #4ec9b0;">Q. プログラムが動かなくなった</strong>
-                    <p style="margin: 2px 0 0 10px; color: #ccc;">A. バグをみつけている時間がないため、最初のコード貼り付けからやり直してください</p>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <strong style="color: #4ec9b0;">Q. 〇〇なように改造したい！</strong>
-                    <p style="margin: 2px 0 0 10px; color: #ccc;">A. 自由ですが、具体的な方法は実際の授業でやります。</p>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <strong style="color: #4ec9b0;">Q. この言語は何ですか？</strong>
-                    <p style="margin: 2px 0 0 10px; color: #ccc;">A. JavaScriptです。（JAVAとは別言語なので略しません）</p>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <strong style="color: #4ec9b0;">Q. let / const とは？</strong>
-                    <p style="margin: 2px 0 0 10px; color: #ccc;">A. letは変数、constは定数になります。</p>
-                </div>
-
-                <div>
-                    <strong style="color: #4ec9b0;">Q. 作ったゲームを保存したい</strong>
-                    <p style="margin: 2px 0 0 10px; color: #ccc;">A. p5.jsのアカウントを作ると保存できるようになります。</p>
-                </div>
-            </div>
+        <h3 style="color:#dcdcaa; margin-bottom: 20px;">本日のポイント</h3>
+        <ul class="icon-list" style="font-size: 22px;">
+            <li><i class="fa-solid fa-code"></i> <strong>2次元配列</strong><br><span style="font-size:18px">ゲームの世界地図を作る仕組み</span></li>
+            <li><i class="fa-solid fa-gamepad"></i> <strong>レベルデザイン</strong><br><span style="font-size:18px">プレイヤーを楽しませる工夫</span></li>
+            <li><i class="fa-solid fa-microchip"></i> <strong>条件分岐</strong><br><span style="font-size:18px">ルールの作成（もし〜なら）</span></li>
+        </ul>
+        <div style="margin-top: 30px; padding: 15px; border: 1px dashed #569cd6; border-radius: 8px;">
+            <p style="text-align: center; color: #569cd6; font-size: 18px;">「勉強を進めることで、自分で世界のルールを創り出すことができる！」</p>
         </div>
     </div>
 </div>

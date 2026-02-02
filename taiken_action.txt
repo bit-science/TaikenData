@@ -1,0 +1,884 @@
+// プレイヤー定数
+const playerStartX = 100;   //プレイヤーのスタート位置（X座標）
+const playerStartY = 384;   //プレイヤーのスタート位置（Y座標）
+const playerMoveSpeed = 3;  //プレイヤーの移動速度
+const playerJumpPower = 13; //プレイヤーのジャンプ力
+const playerGravity = 0.7;  //プレイヤーにかかる重力
+const soundDefault = 1;     //起動時のサウンドスイッチ（0:OFF, 1:ON）
+
+//当たり判定がある、足場となるブロック
+//0 : 空欄
+//1 : 中間ブロック
+//2 : 左側ブロック
+//3 : 右側ブロック
+//4 : 地面（地表）
+//5 : 地面（地中）
+let mapData = [
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+  [5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+];
+
+//当たり判定のない、装飾となるブロック
+//0   : 空欄
+//1-5 : 花
+//6   : バナナ
+//9   : ゴール
+let objectData = [
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+];
+
+
+let playerImg;
+let mapImg;
+let bgImg;
+let plantImg = [0,0,0,0,0];
+let flagImg;
+let logoImg;
+let readyImg;
+let goImg;
+let goalImg = [0,0,0,0,0];
+let clickImg;
+let unitychanImg;
+let soundonImg;
+let soundoffImg;
+let titleBgm;
+let gameBgm;
+let startSe;
+let groundSe;
+let itemSe;
+let clearVoice;
+let jumpVoice = [0,0];
+let gameState = 0;
+let frameTime = 0;
+let mousePulse = 0;
+let mouseOld = 0;
+
+let px, py; // 位置
+let pw, ph;
+let vx, vy;   // 速度
+let direction;
+let animeNum;
+const tileSize = 32;
+const windowW = 480;
+const windowH = 480;
+let logoTiles = [];
+let confettis = [];
+let particles = [];
+let objectPool = [];
+let flashAlpha = 0; // フラッシュの透明度 (0〜255)
+let isGround = 0;
+let isMuted = 0;
+let angle = 0.0;
+let playerAngle = 0.0;
+let banana = 0;
+
+
+function GoalCheck()
+{
+  for (let y = 0; y < objectData.length; y++) 
+  {
+    for (let x = 0; x < objectData[y].length; x++) 
+    {
+      if(objectData[y][x]==9)
+      {
+        //ゴールとの当たり判定
+        if(CheckBoxCollision(px, py, x * tileSize, y * tileSize) == 1)
+          return 1;
+      }
+    }
+  }
+  
+  return 0;
+}
+
+function preload() {
+  logoImg = loadImage('https://bit-science.github.io/TaikenData/collegeUnity.png');
+  playerImg = loadImage('https://bit-science.github.io/TaikenData//dwarf.png');
+  mapImg = loadImage('https://bit-science.github.io/TaikenData/mapchip.png');
+  bgImg = loadImage('https://bit-science.github.io/TaikenData/haikei.png');
+  plantImg[0] = loadImage('https://bit-science.github.io/TaikenData/plant01.gif');
+  plantImg[1] = loadImage('https://bit-science.github.io/TaikenData/plant02.gif');
+  plantImg[2] = loadImage('https://bit-science.github.io/TaikenData/plant03.gif');
+  plantImg[3] = loadImage('https://bit-science.github.io/TaikenData/plant04.gif');
+  plantImg[4] = loadImage('https://bit-science.github.io/TaikenData/plant05.gif');
+  flagImg = loadImage('https://bit-science.github.io/TaikenData/chequere.png');
+  readyImg = loadImage('https://bit-science.github.io/TaikenData/ready.png');
+  goImg = loadImage('https://bit-science.github.io/TaikenData/go.png');
+  goalImg[0] = loadImage('https://bit-science.github.io/TaikenData/goal01.png');
+  goalImg[1] = loadImage('https://bit-science.github.io/TaikenData/goal02.png');
+  goalImg[2] = loadImage('https://bit-science.github.io/TaikenData/goal03.png');
+  goalImg[3] = loadImage('https://bit-science.github.io/TaikenData/goal04.png');
+  goalImg[4] = loadImage('https://bit-science.github.io/TaikenData/goal05.png');
+  clickImg = loadImage('https://bit-science.github.io/TaikenData/clickstart.png');
+  unitychanImg = loadImage('https://bit-science.github.io/TaikenData/UnityChan.png');
+  soundonImg = loadImage('https://bit-science.github.io/TaikenData/soundon.png');
+  soundoffImg = loadImage('https://bit-science.github.io/TaikenData/soundoff.png');
+  
+  titleBgm = loadSound('https://bit-science.github.io/TaikenData/sound/Music/title.wav');
+  gameBgm = loadSound('https://bit-science.github.io/TaikenData/sound/Music/stage.wav');
+  startSe = loadSound('https://bit-science.github.io/TaikenData/sound/SE/get.wav');
+  itemSe = loadSound('https://bit-science.github.io/TaikenData/sound/SE/start.wav');
+  groundSe = loadSound('https://bit-science.github.io/TaikenData/sound/SE/block_break.wav');
+  jumpVoice[0] = loadSound('https://bit-science.github.io/TaikenData/sound/Voice/univ0001.wav');
+  jumpVoice[1] = loadSound('https://bit-science.github.io/TaikenData/sound/Voice/univ0002_trim.wav');
+  clearVoice = loadSound('https://bit-science.github.io/TaikenData/sound/Voice/univ0006.wav');
+}
+
+function setup() {
+  createCanvas(windowW, windowH);
+  image(logoImg, 0, 0, windowW, windowH);
+  
+  //タイルのデータを生成
+  let w = windowW / 5;
+  let h = windowH / 5;
+  logoTiles.push({x: 0 * w, y: 0 * h, delay: 2 });
+  logoTiles.push({x: 1 * w, y: 0 * h, delay: 4 });
+  logoTiles.push({x: 2 * w, y: 0 * h, delay: 6 });
+  logoTiles.push({x: 3 * w, y: 0 * h, delay: 8 });
+  logoTiles.push({x: 4 * w, y: 0 * h, delay: 10 });
+  logoTiles.push({x: 4 * w, y: 1 * h, delay: 12 });
+  logoTiles.push({x: 4 * w, y: 2 * h, delay: 14 });
+  logoTiles.push({x: 4 * w, y: 3 * h, delay: 16 });
+  logoTiles.push({x: 4 * w, y: 4 * h, delay: 18 });
+  logoTiles.push({x: 3 * w, y: 4 * h, delay: 20 });
+  logoTiles.push({x: 2 * w, y: 4 * h, delay: 22 });
+  logoTiles.push({x: 1 * w, y: 4 * h, delay: 24 });
+  logoTiles.push({x: 0 * w, y: 4 * h, delay: 26 });
+  logoTiles.push({x: 0 * w, y: 3 * h, delay: 28 });
+  logoTiles.push({x: 0 * w, y: 2 * h, delay: 30 });
+  logoTiles.push({x: 0 * w, y: 1 * h, delay: 32 });
+  logoTiles.push({x: 1 * w, y: 1 * h, delay: 34 });
+  logoTiles.push({x: 2 * w, y: 1 * h, delay: 36 });
+  logoTiles.push({x: 3 * w, y: 1 * h, delay: 38 });
+  logoTiles.push({x: 3 * w, y: 2 * h, delay: 40 });
+  logoTiles.push({x: 3 * w, y: 3 * h, delay: 42 });
+  logoTiles.push({x: 2 * w, y: 3 * h, delay: 44 });
+  logoTiles.push({x: 1 * w, y: 3 * h, delay: 46 });
+  logoTiles.push({x: 1 * w, y: 2 * h, delay: 48 });
+  logoTiles.push({x: 2 * w, y: 2 * h, delay: 50 });
+
+  //サウンドの初期設定
+  isMuted = soundDefault ? 0 : 1;
+  
+  if (isMuted) {
+    outputVolume(0);   // 全体の音量を0にする
+  } else {
+    outputVolume(1.0); // 全体の音量を100%に戻す
+  }
+
+  titleBgm.setVolume(0.3);
+  gameBgm.setVolume(0.3);
+  startSe.setVolume(0.4);
+  itemSe.setVolume(0.4);
+  groundSe.setVolume(0.2);  
+  jumpVoice[0].setVolume(0.5);
+  jumpVoice[1].setVolume(0.5);
+  clearVoice.setVolume(0.5);
+  titleBgm.loop();
+}
+
+function draw() {
+  background(0);//クリア
+  
+  switch(gameState)
+    {
+      case 0://初期化
+        stateInit();
+        break;
+      case 1://フェードイン
+        stateStart();
+        break;
+      case 2://開始演出
+        stateReady();
+        break;
+      case 3://本編
+        stateGame();
+        break;
+      case 4://終了演出
+        stateGoal();
+        break;
+      case 5://フェードアウト
+        stateEnd();
+        break;
+    }
+}
+
+function stateInit(){
+  tint(255, 255);
+  image(logoImg, 0, 0, windowW, windowH);
+  DrawSound();
+  
+  tint(255, sin(angle)*150 + 105);
+  image(clickImg, 105, 350);
+
+  angle += 0.08;
+
+  if(GetClick())
+  {
+    if(CheckButton(20, 410, 64, 64))
+    {
+      isMuted = isMuted ? 0 : 1;
+
+      if (isMuted) {
+        outputVolume(0);   // 全体の音量を0にする
+      } else {
+        outputVolume(1.0); // 全体の音量を100%に戻す
+      }
+    }
+    else
+    {
+      startSe.play();
+      objectPool = JSON.parse(JSON.stringify(objectData));
+      px = -100;
+      py = -100;
+      pw = 28;
+      ph = 30;
+      vx = 0;
+      vy = 0;
+      angle = 0;
+      flashAlpha = 0;
+      frameTime = 0;
+      animeNum = 9;
+      direction = 2;
+      isGround = 1;
+      banana = 0;
+      gameState = 1;
+      tint(255, 255);
+
+      titleBgm.stop();
+      if (!gameBgm.isPlaying())
+        gameBgm.loop();
+    }
+  }  
+}
+
+function stateStart(){ 
+  DrawBaseMap();
+  DrawPlayer();
+  DrawObjectMap();
+
+  DrawLogoOut();
+
+  frameTime++;
+
+  if(frameTime > 60)
+  {
+    gameState = 2;
+    frameTime = 0;
+  }
+}
+
+function stateReady(){
+  let t = constrain(float(frameTime / 50.0), 0.0, 1.0);
+  
+  if(t < 1.0)
+  {
+    px = easeOutQuad(-200, playerStartX, t);
+    py = easeOutBounce(0, playerStartY, t);
+  }
+  else
+  {
+    vy += playerGravity; // 常に重力をかける
+
+    //Y方向の衝突判定
+    let nextY = py + vy;
+    // プレイヤーの上下の端が壁にめり込まないかチェック
+    if (!isWall(px, nextY) && !isWall(px + pw, nextY) && 
+      !isWall(px, nextY + ph) && !isWall(px + pw, nextY + ph))
+    {
+      py = nextY;
+    }
+    else
+    {
+      vy = 0;
+    }
+  }
+
+  DrawBaseMap();
+  DrawPlayer();
+  DrawObjectMap();
+
+  DrawReadyIn();
+
+  frameTime++;
+
+  if(frameTime > 80)
+  {
+    gameState = 3;
+    frameTime = 0;
+  }  
+}
+
+function stateGame(){
+  //プレイヤーの移動
+  vx = 0;
+  if ((mouseX-16) < (px-5))
+  {
+    vx = -playerMoveSpeed;
+    direction = 1;
+  }
+  if ((mouseX-16) > (px+5))
+  {
+    vx = playerMoveSpeed;
+    direction = 2;
+  }
+
+  vy += playerGravity; // 常に重力をかける
+
+  //X方向の衝突判定
+  let nextX = px + vx;
+  // プレイヤーの左右の端が壁にめり込まないかチェック
+  if (!isWall(nextX, py) && !isWall(nextX + pw, py) && !isWall(nextX, py + ph) && !isWall(nextX + pw, py + ph)){
+    px = nextX;
+  }
+
+  //Y方向の衝突判定
+  let nextY = py + vy;
+  // プレイヤーの上下の端が壁にめり込まないかチェック
+  if (!isWall(px, nextY) && !isWall(px + pw, nextY) && !isWall(px, nextY + ph) && !isWall(px + pw, nextY + ph)){
+    py = nextY;
+    isGround = 0;
+  }
+  else {
+    // 壁に当たった（床に着いた、または天井にぶつかった）
+    if (vy > 0) { // 落下中なら着地
+      // ジャンプ
+      if (GetClick())
+      {
+        jumpVoice[0].stop();
+        jumpVoice[1].stop();
+        let voiceID = floor(random(2));
+        jumpVoice[voiceID].play();
+        vy = -playerJumpPower;
+      }
+      else
+      {
+        if(isGround == 0)
+        {
+          isGround = 1;
+          if(!groundSe.isPlaying())
+            groundSe.play();
+        }
+        vy = 0;
+      }
+    }
+    else { // 上昇中なら天井に激突
+      vy = 0;
+    }
+  }
+
+  DropCheck();
+
+  //アニメーション更新
+  if(vx != 0)
+  {
+    if((frameTime % 4) == 0)
+      animeNum = (animeNum + 1) % 8;
+  }
+  else animeNum = 9;
+  if(vy != 0) animeNum = 10;
+  
+  DrawBaseMap();
+  DrawPlayer();
+  DrawObjectMap();
+
+  BananaCheck();
+  DrawEffect();
+  
+  DrawReadyOut();
+
+  frameTime++;
+  
+  if(GoalCheck() == 1)
+  {
+    clearVoice.play();
+    frameTime = 0;
+    gameState = 4;
+    flashAlpha = 40;
+    createConfetti();
+    animeNum = 11;
+    playerAngle = 0;
+  }
+}
+
+function stateGoal(){
+  vy += playerGravity; // 常に重力をかける
+
+  //Y方向の衝突判定
+  let nextY = py + vy;
+  // プレイヤーの上下の端が壁にめり込まないかチェック
+  if (!isWall(px, nextY) && !isWall(px + pw, nextY) && 
+      !isWall(px, nextY + ph) && !isWall(px + pw, nextY + ph))
+  {
+    py = nextY;
+  }
+  else
+  {
+    vy = 0;
+  }
+    
+  DrawBaseMap();
+  DrawPlayerGoal();
+  DrawObjectMap();
+  
+  DrawConfetti();
+
+  DrawGoal();
+  
+  DrawFlash();
+  
+  frameTime++;
+
+  if(frameTime > 100)
+  {
+    gameBgm.stop();
+    titleBgm.loop();
+    frameTime = 0;
+    gameState = 5;
+  }
+}
+
+function stateEnd(){
+  DrawBaseMap();
+  DrawPlayerGoal();
+  DrawObjectMap();
+ 
+  DrawConfetti();
+
+  DrawGoal2();
+ 
+  DrawLogoIn();
+
+  frameTime++;
+
+  if(frameTime > 60)
+  {
+    angle = 0;
+    gameState = 0;
+  }
+}
+
+function isWall(tx, ty) {
+  let col = floor(tx / tileSize);
+  let row = floor(ty / tileSize);
+  
+  if(row < 0 ) row = 0;
+  if(row > 14 ) row = 14;
+
+  // マップの範囲外は壁として扱う
+  if (col < 0 || col >= 15 ) return true;
+  
+  return mapData[row][col] != 0;
+}
+
+function BananaCheck(){
+  for (let y = 0; y < objectPool.length; y++) 
+  {
+    for (let x = 0; x < objectPool[y].length; x++) 
+    {
+      if(objectPool[y][x]==6)
+      {
+          //バナナとの当たり判定
+          if(CheckBoxCollision(px, py, x * tileSize, y * tileSize) == 1)
+          {
+            itemSe.play();
+            createEffect(x*tileSize+32, y*tileSize+16);
+            objectPool[y][x] = 0;
+            banana += 1;
+          }
+      }
+    }
+  }
+}
+
+function DropCheck(){
+  //画面より下に落下した
+  if(py > windowH + 64)
+  {
+    px = playerStartX;
+    py = playerStartY;
+  }
+}
+
+function easeInQuad(start, end, t) {
+  let ease = float(t * t);
+  return lerp(start, end, t);
+}
+
+function easeOutQuad(start, end, t) {
+  let ease = float(1 - (1 - t) * (1 - t));
+  return lerp(start, end, t);
+}
+
+function easeOutElastic(start, end, t){
+  const c4 = (2 * Math.PI) / 3;
+
+  let ease = t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+  
+  return lerp(start, end, ease);
+}
+
+function easeOutBounce(start, end, t){
+  const n1 = 7.5625;
+  const d1 = 2.75;
+
+  let ease = 0.0;
+  
+  if (t < 1 / d1) {
+    ease = float(n1 * t * t);
+  }
+  else if (t < 2 / d1) {
+    ease = float(n1 * (t -= 1.5 / d1) * t + 0.75);
+  }
+  else if (t < 2.5 / d1) {
+    ease = float(n1 * (t -= 2.25 / d1) * t + 0.9375);
+  }
+  else {
+    ease = float(n1 * (t -= 2.625 / d1) * t + 0.984375);
+  }
+  
+  return lerp(start, end, ease);
+}
+
+function DrawLogoIn(){
+  for(let i = 0; i < 25; i++)
+  {
+    image(logoImg, logoTiles[i].x, logoTiles[i].y, 96, 96, logoTiles[i].x, logoTiles[i].y, 96, 96); 
+
+    if(logoTiles[i].delay > frameTime)
+      return;
+  }
+}
+
+function DrawLogoOut(){
+  let time = 50 - frameTime;
+  if(time < 0)
+    time = 0;
+
+  for(let i = 0; i < 25; i++)
+  {
+    if(logoTiles[i].delay > time)
+      return;
+    
+    image(logoImg, logoTiles[i].x, logoTiles[i].y, 96, 96, logoTiles[i].x, logoTiles[i].y, 96, 96);
+  }
+}
+
+function DrawReadyIn(){
+  let ready_t = constrain(float(frameTime / 20.0), 0.0, 1.0);
+
+  image(readyImg, easeOutElastic(-300, 40, ready_t), 100);
+
+  let go_t = float((frameTime-40) / 20.0);
+  if(go_t > 1.0)
+    go_t = 1.0;
+  image(goImg, easeOutElastic(500, 150, go_t), 220);
+}
+
+function DrawReadyOut(){
+  if(frameTime > 150)
+    return;
+  
+  let ready_t = constrain(float(frameTime / 20.0), 0.0, 1.0);
+
+  tint(255, easeOutQuad(255, 0, ready_t));
+  image(readyImg, 40, easeInQuad(100, 90, ready_t));
+
+  let go_t = constrain(float(frameTime / 20.0), 0.0, 1.0);
+
+  tint(255, easeOutQuad(255, 0, go_t));
+  image(goImg, 150, easeInQuad(220, 230, go_t));
+
+  tint(255, 255);
+}
+
+function CheckBoxCollision(ax, ay, bx, by){  
+  if((ax + tileSize < bx) || (ax > bx + tileSize) || (ay + tileSize < by) || (ay > by + tileSize))
+    return 0;
+
+  return 1;
+}
+
+function CheckButton(x, y, w, h){  
+  if((mouseX < x) || (mouseX > x+w) || (mouseY < y) || (mouseY > y+h))
+    return 0;
+
+  return 1;
+}
+
+function DrawBaseMap(){
+  // --- 4. マップの描画 ---
+  image(bgImg, 0, 0, 480, 480);
+
+  for (let y = 0; y < mapData.length; y++) {
+    for (let x = 0; x < mapData[y].length; x++) {
+      switch(mapData[y][x])
+      {
+        case 1:
+          image(mapImg, x * tileSize, y * tileSize, 32, 32, 32, 0, 32, 32);
+          break;
+        case 2:
+          image(mapImg, x * tileSize, y * tileSize, 32, 32, 0, 0, 32, 32);
+          break;
+        case 3:
+          image(mapImg, x * tileSize, y * tileSize, 32, 32, 64, 0, 32, 32);
+          break;
+        case 4:
+          image(mapImg, x * tileSize, y * tileSize, 32, 32, 128, 0, 32, 32);
+          break;
+        case 5:
+          image(mapImg, x * tileSize, y * tileSize, 32, 32, 96, 0, 32, 32);
+          break;
+        case 6:
+          image(mapImg, x * tileSize, y * tileSize, 32, 32, 32, 32, 32, 32);
+          break;
+        case 7:
+          image(mapImg, x * tileSize, y * tileSize, 32, 32, 0, 32, 32, 32);
+          break;
+        case 8:
+          image(mapImg, x * tileSize, y * tileSize, 32, 32, 64, 32, 32, 32);
+          break;
+        case 9:
+          image(mapImg, x * tileSize, y * tileSize, 32, 32, 128, 32, 32, 32);
+          break;
+      }
+    }
+  }
+}
+
+function DrawObjectMap(){
+  for (let y = 0; y < objectPool.length; y++) 
+  {
+    for (let x = 0; x < objectPool[y].length; x++) 
+    {
+      switch(objectPool[y][x])
+      {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+          image(plantImg[objectPool[y][x]-1], x * tileSize + 10, y * tileSize - 10, 16, 16);
+          break;
+        case 6:
+          push();
+          translate(x * tileSize + 10, y * tileSize);          
+          scale(1.0 - cos(angle*1.5)*0.05);
+          image(mapImg, 0, 0, 32, 32, 160, 0, 31, 31);
+          pop();
+          break;
+        case 9:
+          push();
+          translate(x * tileSize + 10, y * tileSize);
+          rotate(sin(angle) * radians(20));
+          image(flagImg, 0, -32, 32, 32);
+          pop();
+          break;
+      }
+    }
+  }    
+  angle += 0.1;
+}
+
+function DrawPlayer(){
+  push();
+  translate(px + 32 - 16, py-20);
+  // 2. 横方向のスケールを -1 倍にする（左右反転）
+  if(direction == 1)
+    scale(-1, 1);
+  switch(animeNum)
+  {
+    case 9://立ち
+      image(unitychanImg, -32, 0, 64, 64, 0, 0, 64, 64);
+      break;
+    case 10://ジャンプ
+      image(unitychanImg, -32, 0, 64, 64, 192, 192, 64, 64);
+      break;
+    default://歩き
+      image(unitychanImg, -32, 0, 64, 64, (animeNum%4)*64, (int(animeNum/4)+1)*64, 64, 64);
+      break;
+  }
+  pop();
+}
+
+function DrawPlayerGoal(){ 
+  push();
+  translate(px+32-16, py-20-sin(playerAngle)*8);
+  //左右反転
+  if(direction == 1)
+    scale(-1, 1);
+
+  image(unitychanImg, -32, -12, 64, 64, 192, 192, 64, 64);
+  pop();
+  
+  playerAngle += 0.35;
+}
+
+function DrawGoal(){
+    let goal01_t = constrain(float((frameTime - 0) / 30), 0.0, 1.0);
+    let goal02_t = constrain(float((frameTime - 4) / 30), 0.0, 1.0);
+    let goal03_t = constrain(float((frameTime - 8) / 30), 0.0, 1.0);
+    let goal04_t = constrain(float((frameTime - 12) / 30), 0.0, 1.0);
+    let goal05_t = constrain(float((frameTime - 16) / 30), 0.0, 1.0);
+  
+    image(goalImg[0],  60, easeOutElastic(-200, 170, goal01_t));
+    image(goalImg[1], 140, easeOutElastic(-200, 170, goal02_t));
+    image(goalImg[2], 220, easeOutElastic(-200, 170, goal03_t));
+    image(goalImg[3], 300, easeOutElastic(-200, 170, goal04_t));
+    image(goalImg[4], 380, easeOutElastic(-200, 170, goal05_t));
+}
+
+function DrawGoal2(){
+    image(goalImg[0],  60, 170);
+    image(goalImg[1], 140, 170);
+    image(goalImg[2], 220, 170);
+    image(goalImg[3], 300, 170);
+    image(goalImg[4], 380, 170);
+}
+
+function DrawSound(){
+  if(CheckButton(20, 410, 64, 64))
+  {
+    noFill();           // 中身を塗らない
+    stroke(0, 0, 0);    // 線の色を黒にする
+    strokeWeight(4);    // 線の太さを4pxにする
+    rect(20, 410, 66, 66); // x, y, 幅, 高さ      
+  }
+
+  if(isMuted == 1)
+    image(soundoffImg, 20, 410, 64, 64);
+  else
+    image(soundonImg, 20, 410, 64, 64);
+}
+
+function DrawFlash(){
+  // --- フラッシュ演出 ---
+  if (flashAlpha > 0) {
+    // 加算合成モードに設定
+    blendMode(ADD);
+    
+    // 白い四角形を画面全体に描画（透明度はflashAlphaで制御）
+    fill(255, 255, 255, flashAlpha);
+    rect(0, 0, 480, 480);
+    
+    // 加算合成モードを通常に戻す
+    blendMode(BLEND);
+    
+    // 透明度をだんだん減らす（フェードアウト）
+    flashAlpha -= 2;
+    if (flashAlpha < 0) flashAlpha = 0;
+  }  
+}
+
+function GetClick(){
+  let pulse = (mouseIsPressed && !mouseOld);
+
+  mouseOld = mouseIsPressed;
+  
+  return pulse;
+}
+
+function createConfetti() {
+  for (let i = 0; i < 100; i++) {
+    confettis.push({
+      x: random(480),     // 画面の横どこかに
+      y: random(-200, -10), // 画面の上の方に配置
+      vx: random(-2, 2),    // 横揺れ
+      vy: random(2, 5),     // 落下速度
+      angle: random(TWO_PI),
+      angVel: random(0.05, 0.15), // 回転スピード
+      w: random(5, 10),     // 紙の幅
+      h: random(8, 12),     // 紙の長さ
+      col: color(random(255), random(255), random(255)) // ランダムな色
+    });
+  }
+}
+
+function DrawConfetti() {
+  for (let i = confettis.length - 1; i >= 0; i--) {
+    let c = confettis[i];
+    
+    // 移動と回転
+    c.x += c.vx + sin(frameCount * 0.1); // sinでゆらゆらさせる
+    c.y += c.vy;
+    c.angle += c.angVel;
+
+    // 描画
+    push();
+    translate(c.x, c.y);
+    rotate(c.angle);
+    fill(c.col);
+    noStroke();
+    rect(0, 0, c.w * cos(c.angle), c.h);
+    pop();
+
+    // 画面下に行ったら削除
+    if (c.y > height) {
+      confettis.splice(i, 1);
+    }
+  }
+}
+
+function createEffect(mx, my){
+  for (let i = 0; i < 10; i++) 
+  {
+    // 1粒ずつのデータをオブジェクトとして作成
+    let p = {
+      x: mx,
+      y: my,
+      vx: random(-3, 3), // 左右にランダムに散らす
+      vy: random(-5, -1), // 上方向にランダムに飛ばす
+      life: 255          // 最初は不透明
+    };
+    particles.push(p);
+  }
+}
+
+function DrawEffect(){
+  for (let i = particles.length - 1; i >= 0; i--) {
+    let p = particles[i];
+    
+    // 移動させる
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.3; // 重力を加える
+    p.life -= 4; // 寿命を減らす（透明にする）
+
+    // 描画する
+    noStroke();
+    fill(255, 255, 255, p.life);
+    ellipse(p.x, p.y, 5, 5);
+
+    // 寿命が尽きたら配列から消す
+    if (p.life <= 0) {
+      particles.splice(i, 1);
+    }
+  }  
+}
