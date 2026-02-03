@@ -168,6 +168,17 @@ code, .code-block {
   object-fit: contain; /* Changed to contain for screenshots */
 }
 
+.image-blocks img {
+  width: 60%;
+  height: 60%;
+  margin: 10px, 10px;
+  object-fit: contatin; /* Changed to contain for screenshots */
+}
+
+img.middle {
+	vertical-align: middle;
+}
+
 /* Timeline */
 .timeline-layout {
   display: flex;
@@ -496,7 +507,7 @@ code, .code-block {
 
 <!-- Slide 4: Step 2 Playtest -->
 <div class="slide-container" id="slide4">
-    <h2 class="slide-title">Step 2: 操作確認と現状把握</h2>
+    <h2 class="slide-title">Step 2: 操作確認と現状の確認</h2>
     <div class="content-area">
         <div class="two-column">
             <!-- Left: Basic Info & Controls -->
@@ -537,33 +548,7 @@ const soundDefault = 1;     // 音 (0:OFF, 1:ON)
     </div>
 </div>
 
-<!-- Slide 5: Concept Arrays -->
-<div class="slide-container" id="slide5">
-    <h2 class="slide-title">Concept: マップチップと配列</h2>
-    <div class="content-area">
-        <div class="two-column">
-            <div>
-                <h3>ゲームの世界は「マス目」でできている</h3>
-                <p>このゲームのステージは、小さな正方形の画像（<strong>マップチップ</strong>）をタイル状に敷き詰めて作られています。</p>
-                
-                <div style="margin-top: 30px; background: #333; padding: 20px; border-radius: 8px;">
-                    <h4 style="color: #4ec9b0; margin-bottom: 15px;"><i class="fa-solid fa-list-ol"></i> コンピュータの視点</h4>
-                    <p style="font-size: 18px; margin-bottom: 10px;">コンピュータは「絵」ではなく「<strong>数字の並び</strong>」として世界を見ています。</p>
-                    <ul class="icon-list" style="margin-top: 10px;">
-                        <li><i class="fa-solid fa-arrow-right" style="color:#569cd6;"></i> 0 = 空 (何も描かない)</li>
-                        <li><i class="fa-solid fa-arrow-right" style="color:#569cd6;"></i> 1 = 地面 (画像を表示)</li>
-                    </ul>
-                    <p style="font-size: 16px; color: #858585; margin-top: 10px;">この「数字の表」のことを<strong>2次元配列</strong>と呼びます。</p>
-                </div>
-            </div>
-            <div class="image-wrapper">
-                <img src="https://bit-science.github.io/TaikenData/ss02.jpg" alt="Game Level Design Grid Concept">
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Slide 6: Step 3 Set Goal -->
+<!-- Slide 5: Step 3 Set Goal -->
 <div class="slide-container" id="slide6">
     <h2 class="slide-title">Step 3: ゴールの設置</h2>
     <div class="content-area">
@@ -590,6 +575,33 @@ let objectData = [
     </div>
 </div>
 
+
+<!-- Slide 6: Concept Arrays -->
+<div class="slide-container" id="slide5">
+    <h2 class="slide-title">Concept: マップチップと配列</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <h3>ゲームの世界は「マス目」でできている</h3>
+                <p>このゲームのステージは、小さな正方形の画像（<strong>マップチップ</strong>）をタイル状に敷き詰めて作られています。</p>
+                
+                <div style="margin-top: 30px; background: #333; padding: 20px; border-radius: 8px;">
+                    <h4 style="color: #4ec9b0; margin-bottom: 15px;"><i class="fa-solid fa-list-ol"></i> コンピュータの視点</h4>
+                    <p style="font-size: 18px; margin-bottom: 10px;">コンピュータは「絵」ではなく「<strong>数字の並び</strong>」として世界を見ています。</p>
+                    <ul class="icon-list" style="margin-top: 10px;">
+                        <li><i class="fa-solid fa-arrow-right" style="color:#569cd6;"></i> 0 = 空 (何も描かない)</li>
+                        <li><i class="fa-solid fa-arrow-right" style="color:#569cd6;"></i> 1 = 地面 (画像を表示)</li>
+                    </ul>
+                    <p style="font-size: 16px; color: #858585; margin-top: 10px;">この「数字の表」のことを<strong>2次元配列</strong>と呼びます。</p>
+                </div>
+            </div>
+            <div class="image-wrapper">
+                <img src="https://bit-science.github.io/TaikenData/ss07.jpg" alt="mapData"> 
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Slide 7: Step 4 Terrain -->
 <div class="slide-container" id="slide7">
     <h2 class="slide-title">Step 4: 足場を作ろう（ステージ制作）</h2>
@@ -600,14 +612,9 @@ let objectData = [
                 <p style="margin-bottom: 15px;"><code>mapData</code>配列を編集し、ゴールまでの道を作ります。</p>
                 
                 <h4 style="color:#dcdcaa; font-size: 18px; margin-bottom: 10px;">値の対応リスト:</h4>
-                <ul class="icon-list" style="font-size: 18px;">
-                    <li><i class="fa-regular fa-square"></i> <code>0</code> : 空気（通れる）</li>
-                    <li><i class="fa-solid fa-square"></i> <code>1</code> : 足場 (中間)</li>
-                    <li><i class="fa-solid fa-square-caret-left"></i> <code>2</code> : 足場 (左端)</li>
-                    <li><i class="fa-solid fa-square-caret-right"></i> <code>3</code> : 足場 (右端)</li>
-                    <li><i class="fa-solid fa-layer-group"></i> <code>4</code> : 地表</li>
-                    <li><i class="fa-solid fa-grip"></i> <code>5</code> : 地中</li>
-                </ul>
+	            <div class="image-blocks">
+	                <img src="https://bit-science.github.io/TaikenData/ss05.jpg" alt="Pixel Art Banana Item">
+	            </div>
                 <p style="margin-bottom: 15px;">※マップに穴をあけて落下させると初期座標に復帰します</p>
             </div>
             <div>
@@ -629,18 +636,26 @@ let mapData = [
 <div class="slide-container" id="slide8">
     <h2 class="slide-title">Step 5: ステージの装飾</h2>
     <div class="content-area">
-        <div class="tiled-content">
-            <div class="tile">
-                <h3><i class="fa-solid fa-seedling"></i> 花を咲かせよう (1〜5)</h3>
-                <p><code>objectData</code>に1〜5の数字を入れると、アニメーションする様々な種類の花が配置されます。</p>
+        <div class="two-column">
+            <div>
+                <h3>装飾を付け加えていく</h3>
+                <p style="margin-bottom: 15px;"><code>objectData</code>配列を編集し、ステージ上に装飾をつけていきます</p>
+                
+                <h4 style="color:#dcdcaa; font-size: 18px; margin-bottom: 10px;">値の対応リスト:</h4>
+	            <div class="image-blocks">
+	                <img src="https://bit-science.github.io/TaikenData/ss06.jpg" alt="Pixel Art Banana Item">
+	            </div>
             </div>
-            <div class="tile">
-                <h3><i class="fa-solid fa-triangle-exclamation" style="color:#ce9178;"></i> 配置のコツ</h3>
-                <p>花の座標は、<code>mapData</code>の地面ブロックと同じ場所になるようにしましょう。</p>
-            </div>
-            <div class="tile">
-                <h3><i class="fa-solid fa-paintbrush"></i> きれいなマップ作り</h3>
-                <p>浮いている花を確認したら修正し、「自然に見える配置」を意識して、美しいステージを完成させましょう。</p>
+            <div>
+                 <div class="code-block">
+let objectData = [
+  [0, 0, 2, 2, 2, 0, 0, 5, 5, 0], // 足場の上
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 4, 5, 0, 1, 0, 0, 0], // 地表の上にも
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+];
+                </div>
             </div>
         </div>
     </div>
