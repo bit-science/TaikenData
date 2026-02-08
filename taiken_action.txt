@@ -5,6 +5,7 @@ const playerMoveSpeed = 3;  //プレイヤーの移動速度
 const playerJumpPower = 13; //プレイヤーのジャンプ力
 const playerGravity = 0.7;  //プレイヤーにかかる重力
 const soundDefault = 1;     //起動時のサウンドスイッチ（0:OFF, 1:ON）
+const useKeyboard = 0;      //キーボード操作スイッチ（0:OFF, 1:ON）
 
 //当たり判定がある、足場となるブロック
 //0 : 空欄
@@ -24,7 +25,7 @@ let mapData = [
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,2,1,3,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
@@ -53,6 +54,26 @@ let objectData = [
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 ];
+
+
+function GoalCheck(){
+  
+  //ここにプログラムを追加する
+  
+  
+  //これより下は書き換えない
+  for (let y = 0; y < objectData.length; y++) {
+    for (let x = 0; x < objectData[y].length; x++) {
+      if(objectData[y][x]==9){
+        //ゴールとの当たり判定
+        if(CheckBoxCollision(px, py, x * tileSize, y * tileSize) == 1)
+          return 1;
+      }
+    }
+  }
+  
+  return 0;
+}
 
 
 let playerImg;
@@ -98,25 +119,6 @@ let isMuted = 0;
 let angle = 0.0;
 let playerAngle = 0.0;
 let banana = 0;
-
-
-function GoalCheck()
-{
-  for (let y = 0; y < objectData.length; y++) 
-  {
-    for (let x = 0; x < objectData[y].length; x++) 
-    {
-      if(objectData[y][x]==9)
-      {
-        //ゴールとの当たり判定
-        if(CheckBoxCollision(px, py, x * tileSize, y * tileSize) == 1)
-          return 1;
-      }
-    }
-  }
-  
-  return 0;
-}
 
 function preload() {
   logoImg = loadImage('https://bit-science.github.io/TaikenData/collegeUnity.png');
@@ -339,13 +341,13 @@ function stateReady(){
 function stateGame(){
   //プレイヤーの移動
   vx = 0;
-  if ((mouseX-16) < (px-5))
-  {
+  let isJump = 0;
+
+  if (GetLeftMove()){
     vx = -playerMoveSpeed;
     direction = 1;
   }
-  if ((mouseX-16) > (px+5))
-  {
+  if (GetRightMove()){
     vx = playerMoveSpeed;
     direction = 2;
   }
@@ -685,7 +687,7 @@ function DrawObjectMap(){
         case 3:
         case 4:
         case 5:
-          image(plantImg[objectPool[y][x]-1], x * tileSize + 10, y * tileSize - 10, 16, 16);
+          image(plantImg[objectPool[y][x]-1], x * tileSize + 10, y * tileSize + 20, 16, 16);
           break;
         case 6:
           push();
@@ -696,7 +698,7 @@ function DrawObjectMap(){
           break;
         case 9:
           push();
-          translate(x * tileSize + 10, y * tileSize);
+          translate(x * tileSize + 10, y * tileSize + 32);
           rotate(sin(angle) * radians(20));
           image(flagImg, 0, -32, 32, 32);
           pop();
@@ -764,8 +766,7 @@ function DrawGoal2(){
 }
 
 function DrawSound(){
-  if(CheckButton(20, 410, 64, 64))
-  {
+  if(CheckButton(20, 410, 64, 64)){
     noFill();           // 中身を塗らない
     stroke(0, 0, 0);    // 線の色を黒にする
     strokeWeight(4);    // 線の太さを4pxにする
@@ -797,10 +798,44 @@ function DrawFlash(){
   }  
 }
 
-function GetClick(){
-  let pulse = (mouseIsPressed && !mouseOld);
+function GetLeftMove(){
+  if(useKeyboard == 0){
+    if ((mouseX-16) < (px-5))
+      return true;
+  }
+  else{
+    if (keyIsDown(LEFT_ARROW) || keyIsDown(65))
+      return true;
+  }  
+  
+  return false;
+}
 
-  mouseOld = mouseIsPressed;
+function GetRightMove(){
+  if(useKeyboard == 0){
+    if ((mouseX-16) > (px+5))
+      return true;
+  }
+  else{
+    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68))
+      return true;
+  }  
+  
+  return false;
+}
+
+function GetClick(){
+  let pulse = 0;
+  let nowKey = 0;
+
+  if(useKeyboard == 1)
+    nowKey = keyIsDown(32);
+  else
+    nowKey = mouseIsPressed; 
+
+  pulse = (nowKey && !mouseOld);
+
+  mouseOld = nowKey;
   
   return pulse;
 }
