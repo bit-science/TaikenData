@@ -5,7 +5,7 @@ const playerMoveSpeed = 3;  //プレイヤーの移動速度
 const playerJumpPower = 13; //プレイヤーのジャンプ力
 const playerGravity = 0.7;  //プレイヤーにかかる重力
 const soundDefault = 1;     //起動時のサウンドスイッチ（0:OFF, 1:ON）
-const useKeyboard = 0;      //キーボード操作スイッチ（0:OFF, 1:ON）
+const useKeyboard = 1;      //キーボード操作スイッチ（0:OFF, 1:ON）
 
 //当たり判定がある、足場となるブロック
 //0 : 空欄
@@ -828,10 +828,10 @@ function GetClick(){
   let pulse = 0;
   let nowKey = 0;
 
+  nowKey = mouseIsPressed; 
+ 
   if(useKeyboard == 1)
-    nowKey = keyIsDown(32);
-  else
-    nowKey = mouseIsPressed; 
+    nowKey |= keyIsDown(32);
 
   pulse = (nowKey && !mouseOld);
 
